@@ -1,9 +1,11 @@
-name: "nicks-website"
-output_dir: "."
+name: 'bootcha-website'
+output_dir: '.'
 navbar:
-  title: "Nicks Website"
+  title: 'Nicks Website'
   left:
-    - text: "Home"
+    - text: 'Home'
       href: index.html
-    - text: "About Me"
+    - text: 'About Me'
       href: about.html
+    - text: 'Projects'
+      href: projects.html
