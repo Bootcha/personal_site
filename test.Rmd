@@ -1,0 +1,83 @@
+---
+title: "Plotting the Czech Republic in R"
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+<!-- This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>. -->
+
+<!-- When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this: -->
+
+Firstly,  *raster*
+
+```{r libraries, warning=FALSE, message=FALSE}
+library(raster) # getData
+library(ggplot2) # fortify
+library(dplyr)
+library(plotly)
+```
+
+Get data from GADM see <https://gadm.org/>.
+
+```{r gadm, warning=FALSE, message=FALSE}
+mapCZE <- getData('GADM', country='CZE', level=1)
+mapCZE <- fortify(mapCZE, region='ID_1')
+```
+
+```{r plot1, warning=FALSE, message=FALSE}
+ggplot() +
+  geom_polygon(data=mapCZE, aes(x=long, y=lat, group=id), col=NA) +
+  geom_path(data=mapCZE, aes(long, y=lat, group=id), col='white') +
+  coord_map()
+```
+
+```{r data_correction, warning=FALSE, message=FALSE}
+mapCZE1 <- mapCZE %>% filter(id != 13)
+mapCZE2 <- mapCZE %>% filter(id == 13)
+mapCZE2 <- rbind(mapCZE2, head(mapCZE2, n=1))
+mapCZE <- rbind(mapCZE1, mapCZE2)
+```
+
+```{r plot2, warning=FALSE, message=FALSE}
+ggplot() +
+  geom_polygon(data=mapCZE, aes(x=long, y=lat, group=id), col=NA) +
+  geom_path(data=mapCZE1, aes(long, y=lat, group=id), col='white') +
+  coord_map()
+```
+
+```{r data_generation, warning=FALSE, message=FALSE}
+dataMap <- data.frame(id=1:14, index=rnorm(14,0,1))
+mapCZE <- merge(mapCZE, dataMap, by.x='id', by.y='id')
+```
+
+```{r plot3, warning=FALSE, message=FALSE}
+ggplot() +
+  geom_polygon(data=mapCZE, aes(x=long, y=lat, group=id, fill=index), col=NA) +
+  geom_path(data=mapCZE1, aes(long, y=lat, group=id), col='white') +
+  coord_map()
+```
+
+```{r plotly, warning=FALSE, message=FALSE}
+map_data("world", "canada") %>%
+  group_by(group) %>%
+  plot_geo(x = ~long, y = ~lat) %>%
+  add_markers(size = I(1))
+```
+
+# ```{r plotly, warning=FALSE, message=FALSE}
+# p <- plot_geo(mapCZE, x=~long, y=~lat) %>%
+#   add_trace(
+#     z = ~index, color = ~index, colors = 'Purples'
+#   ) %>%
+#   colorbar(title = "Millions USD") %>%
+#   layout(
+#     title = '2011 US Agriculture Exports by State<br>(Hover for breakdown)'
+#   )
+# 
+# p
+# ```
